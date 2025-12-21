@@ -1,113 +1,78 @@
-import numpy as np
 import os
-import sys
+import numpy as np
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.utils import Sequence
+from models.cnn_lstm import build_cnn_lstm
 
-# Add parent directory to path to import from models
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from keras.models import Model
-    from keras.layers import Input, Conv2D, MaxPooling2D, GlobalAveragePooling2D
-    from keras.optimizers import Adam
-    from keras.callbacks import ModelCheckpoint, EarlyStopping
-except ImportError:
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, GlobalAveragePooling2D
-    from tensorflow.keras.optimizers import Adam
-    from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+class FrameSequenceGenerator(Sequence):
+    def __init__(self, frames_data, seq_len=20, batch_size=2):
+        self.frames = frames_data.astype("float32")   # 🔴 IMPORTANT
+        self.seq_len = seq_len
+        self.batch_size = batch_size
+        self.indices = np.arange(len(frames_data) - seq_len)
+    def __len__(self):
+        return int(np.ceil(len(self.indices) / self.batch_size))
 
-from KeyFrameDetection.models.cnn_lstm import build_cnn_lstm
+    def __getitem__(self, idx):
+        batch_idx = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-def create_sequences(frames_data, sequence_length=10):
-    """
-    Create sequences from frames for LSTM training.
-    For simplicity, we'll create synthetic labels (keyframes are frames with significant changes).
-    """
-    sequences = []
-    labels = []
-    
-    # Use CNN feature extractor to get features (same architecture as in build_cnn_lstm)
-    _, feature_extractor = build_cnn_lstm(input_shape=frames_data.shape[1:], sequence_length=sequence_length)
-    
-    # Extract features for all frames
-    frame_features = feature_extractor.predict(frames_data, verbose=0)
-    
-    # Create sequences and labels based on frame differences
-    for i in range(sequence_length, len(frame_features)):
-        seq = frame_features[i-sequence_length:i]
-        sequences.append(seq)
-        
-        # Simple heuristic: keyframe if there's significant change from previous frame
-        if i > 0:
-            change = np.mean(np.abs(frame_features[i] - frame_features[i-1]))
-            label = 1 if change > np.percentile(np.abs(np.diff(frame_features, axis=0)), 75) else 0
-        else:
-            label = 0
-        labels.append(label)
-    
-    return np.array(sequences), np.array(labels)
+        X = np.zeros(
+            (len(batch_idx), self.seq_len, *self.frames.shape[1:]),
+            dtype="float32"
+        )
+        y = np.zeros((len(batch_idx), self.seq_len, 1), dtype="float32")
 
-def train_cnn_lstm(frames_data, epochs=50, batch_size=16, sequence_length=10, validation_split=0.2):
-    """
-    Train a CNN-LSTM model on frames data.
-    
-    Args:
-        frames_data: numpy array of shape (num_frames, H, W, 3) - normalized to [0, 1]
-        epochs: number of training epochs
-        batch_size: batch size for training
-        sequence_length: length of sequences for LSTM
-        validation_split: fraction of data to use for validation
-    
-    Returns:
-        Trained CNN-LSTM model
-    """
-    print(f"[INFO] Training CNN-LSTM on {len(frames_data)} frames")
-    print(f"       Frame shape: {frames_data.shape}")
-    print(f"       Sequence length: {sequence_length}")
-    
-    # Create sequences
-    print("[INFO] Creating sequences...")
-    sequences, labels = create_sequences(frames_data, sequence_length)
-    print(f"       Created {len(sequences)} sequences")
-    
-    # Build model
-    model, cnn_model = build_cnn_lstm(input_shape=frames_data.shape[1:], sequence_length=sequence_length)
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
-    
-    # Create model directory
-    model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
-    os.makedirs(model_dir, exist_ok=True)
-    
-    # Callbacks
-    checkpoint = ModelCheckpoint(
-        os.path.join(model_dir, 'cnn_lstm_best.h5'),
-        monitor='val_loss',
-        save_best_only=True,
-        verbose=1
+        for i, start in enumerate(batch_idx):
+            X[i] = self.frames[start:start + self.seq_len]
+            y[i] = np.random.randint(0, 2, size=(self.seq_len, 1))
+
+        return X, y
+
+
+def train_cnn_lstm(
+    frames,
+    seq_len=20,
+    batch_size=2,
+    max_epochs=30,
+    save_path="models/cnn_lstm_best.h5"
+):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    generator = FrameSequenceGenerator(
+        frames=frames,
+        seq_len=seq_len,
+        batch_size=batch_size
     )
-    
-    early_stopping = EarlyStopping(
-        monitor='val_loss',
-        patience=10,
+
+    model = build_cnn_lstm(
+        input_shape=(seq_len, frames.shape[1], frames.shape[2], 3)
+    )
+
+    model.summary()
+
+    early_stop = EarlyStopping(
+        monitor="loss",
+        patience=5,
         restore_best_weights=True,
         verbose=1
     )
-    
-    # Train the model
-    history = model.fit(
-        sequences,
-        labels,
-        epochs=epochs,
-        batch_size=batch_size,
-        validation_split=validation_split,
-        callbacks=[checkpoint, early_stopping],
+
+    checkpoint = ModelCheckpoint(
+        save_path,
+        monitor="loss",
+        save_best_only=True,
         verbose=1
     )
-    
-    # Save final models
-    model.save(os.path.join(model_dir, 'cnn_lstm_final.h5'))
-    cnn_model.save(os.path.join(model_dir, 'cnn_feature_extractor.h5'))
-    print("[INFO] CNN-LSTM training completed!")
-    
-    return model
 
+    model.fit(
+        generator,
+        epochs=max_epochs,
+        callbacks=[early_stop, checkpoint],
+        verbose=1
+    )
+
+    print(f"[INFO] CNN+LSTM training completed.")
+    print(f"[INFO] Model saved at {save_path}")
+
+    return model
