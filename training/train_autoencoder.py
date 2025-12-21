@@ -14,7 +14,7 @@ except ImportError:
 
 from KeyFrameDetection.models.autoencoder import build_autoencoder
 
-def train_autoencoder(frames_data, epochs=50, batch_size=32, validation_split=0.2):
+def train_autoencoder(frames_data, epochs=5, batch_size=32, validation_split=0.2):
     """
     Train an autoencoder model on frames data.
     
