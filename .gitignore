@@ -7,6 +7,7 @@ __pycache__/
 env/
 venv/
 ENV/
+<<<<<<< HEAD
 build/
 develop-eggs/
 dist/
@@ -29,12 +30,31 @@ wheels/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+=======
+.venv
+
+# Model files
+*.h5
+*.hdf5
+*.pkl
+*.pth
+*.pt
+*.ckpt
+
+# Data files (uncomment if you don't want to track large video files)
+# *.mp4
+# *.avi
+# *.mov
+# data/videos/*
+# data/frames/*
+>>>>>>> d57b9c2de0fe1452054e323d8fda8bdd92d17bd2
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+<<<<<<< HEAD
 
 # Output files
 output/
@@ -46,8 +66,23 @@ output/
 # Data (keep structure but ignore large files)
 data/videos/*.mp4
 data/videos/*.avi
+=======
+*~
+>>>>>>> d57b9c2de0fe1452054e323d8fda8bdd92d17bd2
 
 # OS
 .DS_Store
 Thumbs.db
 
+<<<<<<< HEAD
+=======
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs and temporary files
+*.log
+*.tmp
+
+
+>>>>>>> d57b9c2de0fe1452054e323d8fda8bdd92d17bd2
