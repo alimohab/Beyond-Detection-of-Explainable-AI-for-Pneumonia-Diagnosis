@@ -37,7 +37,45 @@ Main assets:
 - Explainability notebooks (XAI-ICP/Grad-CAM/LIME/SHAP)
 - `VIT_features_extractor/vit.py` for extracting ViT embeddings to CSV/PKL
 
-## 2. Requirements
+## 2. Notebook-by-notebook guide
+
+This repository contains multiple model variants and some iterative notebook versions. Use this map to understand each file.
+
+- `convonext-mohamed-khaled.ipynb`
+	- ConvNeXt-style deep learning workflow with EDA and explainability components.
+- `knn-xai (3).ipynb`
+	- KNN-based classification experiments with XAI analysis (LIME/SHAP style interpretation).
+- `mohamed-khaled-vit (1).ipynb`
+	- Vision Transformer training/evaluation workflow for pneumonia detection.
+- `team03-ali-resnet152v2-model (2).ipynb`
+	- ResNet152V2 model training and evaluation pipeline.
+- `team03-code-abdelrhman-hisham (1).ipynb`
+	- General training/experimentation notebook (Abdelrhman/Hisham version).
+- `team03-code-ali (2).ipynb`
+	- Ali experimentation/training workflow (older iteration).
+- `team03-code-ali (4).ipynb`
+	- Ali experimentation/training workflow (newer iteration, prefer this over `(2)`).
+- `team03-efficientb0-ali-mohab.ipynb`
+	- EfficientNet-B0 model training/evaluation.
+- `team03-xai-icp-mohamed-hatem-model2.ipynb`
+	- Dedicated explainability notebook for model interpretation (XAI-ICP-focused).
+- `team03-xception-model-ali-mohab (3).ipynb`
+	- Xception model training/validation notebook.
+- `team03_code_abdelrhman.ipynb`
+	- Abdelrhman training notebook variant; overlaps with `team03-code-abdelrhman-hisham (1).ipynb`.
+- `team03_code_mohmed_hatem.ipynb`
+	- Mohamed Hatem training/experimentation notebook.
+- `team03_MobileNetV3_Mohamed_Hatem.ipynb`
+	- MobileNetV3 model training/evaluation pipeline.
+- `vit-b16-mohamed-khaled (2).ipynb`
+	- ViT-B16 pipeline (earlier version).
+- `vit-b16-mohamed-khaled (3) (1).ipynb`
+	- ViT-B16 pipeline (later revision, generally prefer this over `(2)`).
+
+Suggested rule for versioned files:
+- If two notebooks look similar and only differ by suffix like `(2)`, `(3)`, `(4)`, start with the higher-numbered one.
+
+## 3. Requirements
 
 You need:
 - Python 3.10+ (3.11 recommended)
@@ -55,7 +93,7 @@ Notes:
 - `requirements.txt` contains core packages used by the feature extractor.
 - Several notebooks also use extra packages listed above.
 
-## 3. Dataset setup
+## 4. Dataset setup
 
 Most notebooks were originally developed in Kaggle and expect the NIH Chest X-ray dataset.
 
@@ -77,7 +115,7 @@ Important:
 	- `/kaggle/input/datasets/organizations/nih-chest-xrays/data`
 - For local execution, update that variable to your local dataset path in each notebook.
 
-## 4. How to run the full project
+## 5. How to run the full project
 
 ### Step A: Create and activate environment
 
@@ -103,17 +141,27 @@ Open notebooks from the repository root.
 
 1. Optional feature extraction:
 	 - `VIT_features_extractor/vit.py`
-2. Model notebooks (choose one or run multiple for comparison):
-	 - `convonext-mohamed-khaled.ipynb`
-	 - `vit-b16-mohamed-khaled (2).ipynb`
-	 - `team03_MobileNetV3_Mohamed_Hatem.ipynb`
-	 - `team03_code_mohmed_hatem.ipynb`
-3. Traditional ML + XAI:
+2. Pick deep-learning model notebooks to benchmark:
+	 - ViT family:
+		 - `vit-b16-mohamed-khaled (3) (1).ipynb` (preferred)
+		 - `vit-b16-mohamed-khaled (2).ipynb`
+		 - `mohamed-khaled-vit (1).ipynb`
+	 - CNN family:
+		 - `convonext-mohamed-khaled.ipynb`
+		 - `team03_MobileNetV3_Mohamed_Hatem.ipynb`
+		 - `team03-ali-resnet152v2-model (2).ipynb`
+		 - `team03-efficientb0-ali-mohab.ipynb`
+		 - `team03-xception-model-ali-mohab (3).ipynb`
+	 - General experiment notebooks:
+		 - `team03_code_mohmed_hatem.ipynb`
+		 - `team03-code-abdelrhman-hisham (1).ipynb` or `team03_code_abdelrhman.ipynb`
+		 - `team03-code-ali (4).ipynb` (preferred) or `team03-code-ali (2).ipynb`
+3. Run traditional ML + local explainability:
 	 - `knn-xai (3).ipynb`
-4. Dedicated explainability workflow:
+4. Run dedicated explainability summary notebook:
 	 - `team03-xai-icp-mohamed-hatem-model2.ipynb`
 
-## 5. Run the ViT feature extractor script
+## 6. Run the ViT feature extractor script
 
 Command:
 
@@ -131,14 +179,14 @@ Outputs:
 - `outputs/vit_features_xai.pkl`
 - `outputs/image_features.csv`
 
-## 6. Notebook execution tips
+## 7. Notebook execution tips
 
 - Always run cells top-to-bottom in a fresh kernel.
 - If a notebook contains `!pip install ...` cells, you can keep them or remove them if already installed in your environment.
 - If you see `FileNotFoundError`, first verify `BASE_PATH`, `CSV_PATH`, and image folder paths.
 - For GPU acceleration, install CUDA-enabled frameworks and select the correct environment/kernel.
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 Common issues:
 - `ModuleNotFoundError`:
@@ -148,8 +196,15 @@ Common issues:
 - Kernel mismatch:
 	- In Jupyter, switch to the virtual environment kernel used for installation.
 
-## 8. Reproducibility notes
+## 9. Reproducibility notes
 
 - Different notebooks may use different preprocessing and train/validation/test splits.
 - Keep run logs and output files per notebook for fair model comparison.
 - If you need strict reproducibility, fix random seeds inside each notebook and keep package versions pinned.
+
+## 10. Additional project files
+
+- `Team03_proposal (1).pdf`
+	- Project proposal document.
+- `Team03_phase1.pdf`
+	- Phase/report document.
