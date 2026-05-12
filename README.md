@@ -25,10 +25,12 @@ jupyter notebook
 ```
 
 4. Run in this order:
-- `VIT_features_extractor/vit.py` (optional)
-- `convonext-mohamed-khaled.ipynb` or `vit-b16-mohamed-khaled (2).ipynb` or `team03_MobileNetV3_Mohamed_Hatem.ipynb`
-- `knn-xai (3).ipynb`
-- `team03-xai-icp-mohamed-hatem-model2.ipynb`
+- `VIT_features_extractor/vit.py` (optional feature export)
+- Start one deep model notebook (ViT/CNN family)
+- Run KNN-XAI notebook
+- Run final dedicated XAI notebook
+
+5. For full details on all notebooks, follow sections 5 and 6 below.
 
 ## 1. Project overview
 
@@ -117,6 +119,19 @@ Important:
 
 ## 5. How to run the full project
 
+This section is the full project startup path (from zero to complete run).
+
+### What "full project" means in this repository
+
+Running the full project usually means:
+- Setting up one consistent Python environment
+- Pointing all notebooks to the same dataset path
+- Running representative notebooks from each model family
+- Running traditional ML + XAI notebooks
+- Optionally exporting ViT features with the script pipeline
+
+You do not need to run every duplicate notebook version. For similar files, prefer higher-numbered revisions.
+
 ### Step A: Create and activate environment
 
 Windows (PowerShell):
@@ -136,6 +151,14 @@ jupyter notebook
 ```
 
 Open notebooks from the repository root.
+
+### Step B.1: Before running any notebook (important)
+
+Do this once before each notebook family run:
+- Restart kernel and clear output (to avoid variable leakage from previous notebooks)
+- Verify the active kernel is your project environment
+- Update path cells (`BASE_PATH`, CSV/image paths) before running long training cells
+- Run import/setup cells first and confirm no missing modules
 
 ### Step C: Recommended execution order
 
@@ -161,6 +184,65 @@ Open notebooks from the repository root.
 4. Run dedicated explainability summary notebook:
 	 - `team03-xai-icp-mohamed-hatem-model2.ipynb`
 
+### Step D: How to start all notebooks (complete checklist)
+
+Use this if you want broad coverage of the whole repository.
+
+#### Group 1: ViT notebooks
+- `vit-b16-mohamed-khaled (3) (1).ipynb` (start here)
+- `vit-b16-mohamed-khaled (2).ipynb`
+- `mohamed-khaled-vit (1).ipynb`
+
+Run approach:
+- Run environment/import cells
+- Fix dataset path variables
+- Run preprocessing and dataloader cells
+- Run training/evaluation cells
+- Save metrics/plots before moving to next notebook
+
+#### Group 2: CNN architecture notebooks
+- `convonext-mohamed-khaled.ipynb`
+- `team03_MobileNetV3_Mohamed_Hatem.ipynb`
+- `team03-ali-resnet152v2-model (2).ipynb`
+- `team03-efficientb0-ali-mohab.ipynb`
+- `team03-xception-model-ali-mohab (3).ipynb`
+
+Run approach:
+- Use same dataset split strategy where possible for fair comparison
+- Record accuracy, precision, recall, F1, ROC-AUC per model
+- Keep output folder names unique by notebook/model
+
+#### Group 3: General experiment notebooks
+- `team03_code_mohmed_hatem.ipynb`
+- `team03-code-abdelrhman-hisham (1).ipynb`
+- `team03_code_abdelrhman.ipynb`
+- `team03-code-ali (4).ipynb` (preferred)
+- `team03-code-ali (2).ipynb`
+
+Run approach:
+- Treat these as alternative/iterative experiment variants
+- If two notebooks overlap heavily, run only one preferred version first
+
+#### Group 4: Traditional ML + explainability notebooks
+- `knn-xai (3).ipynb`
+- `team03-xai-icp-mohamed-hatem-model2.ipynb`
+
+Run approach:
+- Run after at least one deep model notebook to align comparisons
+- Export and keep explanation plots (LIME/SHAP/Grad-CAM/PDP/ICE) with clear names
+
+### Step E: Suggested practical workflow (recommended)
+
+If you need complete but efficient execution:
+1. Run one preferred ViT notebook
+2. Run two or three CNN notebooks (MobileNetV3 + ResNet/Xception + ConvNeXt/EfficientNet)
+3. Run one general experiment notebook per author stream
+4. Run KNN-XAI notebook
+5. Run XAI-ICP notebook
+6. Optionally run remaining duplicate versions only if needed
+
+This gives full project coverage without wasting time on near-identical iterations.
+
 ## 6. Run the ViT feature extractor script
 
 Command:
@@ -185,6 +267,11 @@ Outputs:
 - If a notebook contains `!pip install ...` cells, you can keep them or remove them if already installed in your environment.
 - If you see `FileNotFoundError`, first verify `BASE_PATH`, `CSV_PATH`, and image folder paths.
 - For GPU acceleration, install CUDA-enabled frameworks and select the correct environment/kernel.
+- After each notebook completes, immediately save:
+	- model metrics
+	- confusion matrix / ROC / PR plots
+	- explainability outputs (if available)
+	- model checkpoint path
 
 ## 8. Troubleshooting
 
